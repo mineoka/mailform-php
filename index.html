@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<title>お問い合わせ入力</title>
+<meta name="description" content="">
+
+<style>
+table th,
+table td{
+  padding: 5px;
+  text-align: left;
+}
+
+table input{
+	border: 1px solid #aaa;
+	padding: 8px;
+	border-radius: 3px;
+}
+.inputerr{
+	color: red;
+	padding-left: 5px;
+}
+</style>
+
+</head>
+<body>
+	<section>
+		<form action="./contact.php" method="post" id="form" name="contact">
+  		<h2>お問い合わせ</h2>
+  		<p>以下の内容を入力後、「送信する」ボタンをクリックしてください</p>
+  		<table>
+  			<tbody>
+  				<tr>
+  					<th>お名前</th>
+  					<td><input type="text" class="name" name="name" size="20" placeholder="例）山田 翔太" /></td>
+  				</tr>
+  				<tr>
+  					<th>性別</th>
+  					<td>
+              <input type="radio" name="sex" value="男性" checked="checked">男性
+              <input type="radio" name="sex" value="女性">女性
+            </td>
+  				</tr>
+  				<tr>
+  					<th>電話番号</th>
+  					<td><input type="text" class="tel" name="tel" size="20" placeholder="例）087-999-9999" /></td>
+  				</tr>
+  				<tr>
+  					<th>役職</th>
+  					<td>
+              <select name="post" class="post">
+                <option value=""></option>
+                <option value="社長">社長</option>
+                <option value="役員">役員</option>
+                <option value="部長">部長</option>
+                <option value="課長">課長</option>
+                <option value="一般社員">一般社員</option>
+              </select>
+            </td>
+  				</tr>
+  				<tr>
+  					<th>住所</th>
+  					<td><input type="text" class="address" name="address" size="50" placeholder="例）愛媛県松山市井門町100-100" /></td>
+  				</tr>
+  			</tbody>
+  		</table>
+
+  		<div class="btn">
+  			<input type="button" onclick="javascript:fnc_submit_INP('btn_INP')" value="送信する">
+  		</div>
+		</form>
+	</section>
+
+  <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+  <script>
+  	function fnc_submit_INP( arg_name ){
+      // 初期処理
+  		$str_err_flg = false;
+  		$(".inputerr").remove();
+      var inputObj = getFormVals();
+
+  		// スタイルリセット
+      Object.keys(inputObj).forEach(function(key) {
+    		$("." + key).css('border','1px solid #aaa');
+    		$("." + key).css('background','#fff');
+      });
+
+  		// 必須チェック
+      Object.keys(inputObj).forEach(function(key) {
+    		if( $("." + key).val() == "" ){
+    			$("." + key).css('border','1px solid red');
+    			$("." + key).css('background','#ffebee');
+    			$("." + key).after('<span class="inputerr">入力/選択が必要です</span>');
+    			$str_err_flg = true;
+    		}
+      });
+
+  		if( $str_err_flg === false ){
+  			if (window.confirm("入力内容で応募します。\nよろしいですか？")) {
+  				// ページ呼び出し
+  				document.contact.submit();
+  			}
+  		}
+  	}
+  </script>
+  <script>
+    // 入力値の取得関数
+    function getFormVals() {
+      // オブジェクトを用意
+    　obj = new　Object();
+
+    　// テキストフィールドの値を取得/マッピング
+      $("#form input:text").each(function(){
+        obj[this.name] = this.value;
+      });
+
+      // テキストエリアの入力値を取得/マッピング
+      $("#form textarea").each(function(){
+        obj[this.name] = this.value;
+      });
+
+      // hiddenの値を取得/マッピング
+      $("#form input:hidden").each(function(){
+        obj[this.name] = this.value;
+      });
+
+      // radioやcheckboxのチェック値を取得/マッピング
+      $("#form input:checked").each(function(){
+        // check box
+        if($(this).prop('type')=='checkbox'){
+          if(obj[this.name]===undefined)obj[this.name] = [];
+          obj[this.name].push($(this).val());
+        // radio
+        } else {
+          obj[this.name] = this.value;
+        }
+      });
+
+      // selectの選択値を取得/マッピング
+      $('#form option:selected').each(function(){
+        var input_name = $(this).parent().prop('name');
+        obj[input_name] = this.value;
+      });
+
+      // 返り値
+      return obj;
+    }
+  </script>
+</body>
