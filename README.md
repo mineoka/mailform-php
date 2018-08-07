@@ -17,3 +17,12 @@
 ├ contact_err.php .. メール送信エラー画面
 ```
 ## 動作概要
+- index.htmlにて入力した項目をPOSTでcontact.phpで受け取り
+- contact.phpにてメール送信を実行し、ログを出力
+- 正常の場合は完了画面、エラーの場合はエラー画面に遷移
+- フォームの必須チェックはindex.html内のjavascriptにて実施
+
+## 編集箇所
+- index.htmlのフォーム項目
+- contact.phpのメールタイトルや送信先アドレス
+- mailform/mailformat.txtの送信項目や署名箇所
