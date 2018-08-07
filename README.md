@@ -8,13 +8,12 @@
 ```
 リポジトリTOP
 │
-├ README.md .. 目次を書く
-├ ○○.md
+├ mailform .. メールフォーマット保存フォルダ
+│　├ mailformat.txt .. メールフォーマット
 │
-├ 第１章 .. フォルダを作成
-│　├ ○○.md
-│　├ ○○.md
-│　└ ○○.md
-│
-├ 第２章 .. フォルダを作成
+├ index.html .. メール送信フォーム
+├ contact.php .. メール送信処理
+├ contact_end.php .. メール送信完了画面
+├ contact_err.php .. メール送信エラー画面
 ```
+## 動作概要
