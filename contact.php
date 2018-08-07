@@ -40,7 +40,7 @@
 	$str_log = "";
 
 	// メールフォーマット読み込み
-	$str_mailform = file_get_contents( './mailform/application.txt' );
+	$str_mailform = file_get_contents( './mailform/mailformat.txt' );
 
 	// メールフォーマット読み込み判定
 	if ( $str_mailform == FALSE ){
