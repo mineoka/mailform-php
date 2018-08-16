@@ -5,6 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <title>お問い合わせ入力</title>
 <meta name="description" content="">
+<script src='https://www.google.com/recaptcha/api.js'></script>
 
 <style>
 table th,
@@ -21,6 +22,9 @@ table input{
 .inputerr{
 	color: red;
 	padding-left: 5px;
+}
+.captcha{
+  margin: 20px 0;
 }
 </style>
 
@@ -67,13 +71,21 @@ table input{
   			</tbody>
   		</table>
 
+      <div class="g-recaptcha" data-callback="clearcall" data-sitekey="サイトキーをいれる"></div>
   		<div class="btn">
-  			<input type="button" onclick="javascript:fnc_submit_INP('btn_INP')" value="送信する">
+  			<input type="button" onclick="javascript:fnc_submit_INP('btn_INP')" value="送信する" disabled>
   		</div>
 		</form>
 	</section>
 
   <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+  <script type="text/javascript">
+  	function clearcall(code) {
+  		if(code !== ""){
+  			$(':button').removeAttr("disabled");
+  		}
+  	}
+	</script>
   <script>
   	function fnc_submit_INP( arg_name ){
       // 初期処理

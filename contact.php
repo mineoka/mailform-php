@@ -21,6 +21,9 @@
 	define( 'CONST_EMAIL_BCC'  , '' );
 	define( 'CONST_EMAIL_FROM' , 'from_xxx@abc.com' );
 
+	// recapchaシークレットキー
+	define( 'CONST_CAPCHA_SEACRET_KEY' , 'シークレットキーを入れる' );
+
 	//----------------------------------------------------------------
 	// プログラム変数
 	//----------------------------------------------------------------
@@ -38,6 +41,7 @@
 	//----------------------------------------------------------------
 	// 初期化
 	$str_log = "";
+	$secretKey = CONST_CAPCHA_SEACRET_KEY;
 
 	// メールフォーマット読み込み
 	$str_mailform = file_get_contents( './mailform/mailformat.txt' );
@@ -47,66 +51,87 @@
 		// メールフォーマットなし
 		$str_err = "メールフォーマット読み込み失敗";
 	} else {
-		// 項目編集
-		foreach ($ary_form_element as $key => $value) {
-			// メールフォーマットセット
-			$str_tmp = $_POST[$key];
-			$str_tmp = mb_convert_encoding( $str_tmp , "EUC-JP" , "UTF-8" );
-			$str_mailform = str_replace( "**" . $key . "**" , $str_tmp , $str_mailform );
+		// recaptchaの認証処理
+		$recaptcha = htmlspecialchars($_POST["g-recaptcha-response"], ENT_QUOTES, 'UTF-8');
 
-			// ログ出力用に退避
-			$str_log .= $value . ":" . $_POST[$key] . ",";
-		}
-
-		// 編集
-		// 送信先
-		// メールアドレス
-		$str_to = CONST_EMAIL_TO;
-
-		// ｃｃ
-		$str_cc = CONST_EMAIL_CC;
-
-		// ｂｃｃ
-		$str_bcc = CONST_EMAIL_BCC;
-
-		// 送信者名
-		$str_tmp = CONST_EML_SENDNM;
-		$str_tmp = mb_convert_encoding( $str_tmp , "EUC-JP" , "UTF-8" );
-		$str_name = $str_tmp;
-
-		// 送信元
-		$str_from = CONST_EMAIL_FROM;
-
-		// 返信先
-		$str_reply = "";
-
-		// タイトル
-		$str_tmp = CONST_EML_TITLE;
-		$str_tmp = mb_convert_encoding( $str_tmp , "EUC-JP" , "UTF-8" );
-		$str_subject = $str_tmp;
-
-		// 内容
-		$str_body = $str_mailform;
-
-		// 送信
-		if ( cmph_send_mail( $str_to , $str_cc , $str_bcc , $str_name , $str_from , $str_reply , $str_subject , $str_body ) == FALSE ) {
-			// 送信失敗
-			$str_err = "メール送信に失敗しました。";
-		}
-
-		// ログ出力
-		fnc_mail_log( $str_err . $str_log );
-
-		// 画面遷移
-		if( $str_err == "" ){
-			// 完了画面へ遷移
-			$str_url  = "Location:./contact_end.php";
-			header( $str_url , TRUE );
+		if( isset($recaptcha) ){
+			$captcha = $recaptcha;
 		} else {
-			// エラー画面へ遷移
-			$str_url  = "Location:./contact_err.php";
-			header( $str_url , TRUE );
+			$captcha = "";
+			$str_err = "captchaエラー";
 		}
+
+		if( $str_err == "" ){
+			$resp = @file_get_contents("https://www.google.com/recaptcha/api/siteverify?secret={$secretKey}&response={$captcha}");
+			$resp_result = json_decode($resp,true);
+
+			if( intval($resp_result["success"] ) !== 1) {
+				// 認証失敗時
+				$str_err = "認証エラー";
+			} else {
+				// 認証成功時
+				// 項目編集
+				foreach ($ary_form_element as $key => $value) {
+					// メールフォーマットセット
+					$str_tmp = $_POST[$key];
+					$str_tmp = mb_convert_encoding( $str_tmp , "EUC-JP" , "UTF-8" );
+					$str_mailform = str_replace( "**" . $key . "**" , $str_tmp , $str_mailform );
+
+					// ログ出力用に退避
+					$str_log .= $value . ":" . $_POST[$key] . ",";
+				}
+
+				// 編集
+				// 送信先
+				// メールアドレス
+				$str_to = CONST_EMAIL_TO;
+
+				// ｃｃ
+				$str_cc = CONST_EMAIL_CC;
+
+				// ｂｃｃ
+				$str_bcc = CONST_EMAIL_BCC;
+
+				// 送信者名
+				$str_tmp = CONST_EML_SENDNM;
+				$str_tmp = mb_convert_encoding( $str_tmp , "EUC-JP" , "UTF-8" );
+				$str_name = $str_tmp;
+
+				// 送信元
+				$str_from = CONST_EMAIL_FROM;
+
+				// 返信先
+				$str_reply = "";
+
+				// タイトル
+				$str_tmp = CONST_EML_TITLE;
+				$str_tmp = mb_convert_encoding( $str_tmp , "EUC-JP" , "UTF-8" );
+				$str_subject = $str_tmp;
+
+				// 内容
+				$str_body = $str_mailform;
+
+				// 送信
+				if ( cmph_send_mail( $str_to , $str_cc , $str_bcc , $str_name , $str_from , $str_reply , $str_subject , $str_body ) == FALSE ) {
+					// 送信失敗
+					$str_err = "メール送信に失敗しました。";
+				}
+			}
+		}
+	}
+
+	// ログ出力
+	fnc_mail_log( $str_err . $str_log );
+
+	// 画面遷移
+	if( $str_err == "" ){
+		// 完了画面へ遷移
+		$str_url  = "Location:./contact_end.php";
+		header( $str_url , TRUE );
+	} else {
+		// エラー画面へ遷移
+		$str_url  = "Location:./contact_err.php";
+		header( $str_url , TRUE );
 	}
 
 	//----------------------------------------------------------------
